@@ -20,14 +20,17 @@ RUN version=$(basename $(curl -sL -o /dev/null -w %{url_effective} https://githu
     && chmod 777 -R .
 
 # Get tokens.json
-RUN cd /etc/secrets/tokens.json \
+RUN --mount=type=secret,id=TOKENS_JSON,dst=/etc/secrets/TOKENS_JSON \
+    if [ -f /etc/secrets/TOKENS_JSON ]; then \
+    cat /etc/secrets/TOKENS_JSON > tokens.json \
     && chmod 777 tokens.json; \
     else \
     echo "TOKENS_JSON not found, skipping"; \
     fi
 
 # Get config.json
-RUN cd /etc/secrets/config.json && chmod 777 config.json
+RUN --mount=type=secret,id=CONFIG_JSON,dst=/etc/secrets/CONFIG_JSON \
+    cat /etc/secrets/CONFIG_JSON > config.json && chmod 777 config.json
 
 # Modify the execution permissions of PandoraNext
 RUN chmod 777 ./PandoraNext
